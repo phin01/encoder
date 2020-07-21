@@ -1,0 +1,5 @@
+﻿*.csv
+*.ipynb
+encoder_gui
+__pycache__
+update_password.py
