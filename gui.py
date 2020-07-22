@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QFileDialog, QMessageBox
 import os
 import sys
 import pandas as pd
+from encodecode import EncoDeco
+
 
 
 class EncoderGUI(QtWidgets.QWidget):
@@ -20,6 +22,8 @@ class EncoderGUI(QtWidgets.QWidget):
         self.btnDecode.clicked.connect(self.start_decoding)
         self.btnGetSourceFile.clicked.connect(self.get_csv_filename)
 
+        self.encodecode = EncoDeco()
+
         # self.spinBoxInterval.setValue(default_interval) # set spinbox value as default interval from config.json file
         # self.sysTray = parent # systray parent object that will run start/stop functions
 
@@ -32,6 +36,7 @@ class EncoderGUI(QtWidgets.QWidget):
             If file is .csv, sets UI textbox to filename
             Displays error message box in case selected file is not .csv
         """
+        self.lblResult.setText('')
         options = QFileDialog.Options()
         # options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"Buscar CSV", "","CSV Files (*.csv)", options=options)
@@ -40,33 +45,40 @@ class EncoderGUI(QtWidgets.QWidget):
 
 
     def encode_decode(self, encode: bool):
+        self.lblResult.setText('Processando...')
         fileName = self.txtPath.toPlainText()
         separator = self.txtSeparator.toPlainText()
-        throwError = True
 
         if self.check_csv_extension(fileName) and separator:
-            data = self.load_csv(fileName, separator)
+            data = self.encodecode.load_csv(fileName, separator)
 
-            if data:
+            if not data.empty:
                 if encode:
-                    print('call encode')
-                    throwError = False
+                    encoded_df = self.encodecode.encode(data, p64=True)
+                    output_csv = fileName.replace('.csv', '_convertido.csv')
+                    output_result = self.encodecode.store_csv(encoded_df, output_csv, ';')
                 else:
-                    print('call decode')
-                    throwError = False
-
-
-        if throwError:
+                    decoded_df = self.encodecode.decode(data, separator, p64=True)
+                    output_csv = fileName.replace('.csv', '_original.csv')
+                    output_result = self.encodecode.store_csv(decoded_df, output_csv, ';')
+        
+        if output_result:
+            self.lblResult.setText('Arquivo salvo com sucesso em {0}'.format(output_csv))
+            self.set_csv_path('')
+        else:
+            self.lblResult.setText('Erro na operação')
             self.show_msgbox('Erro', 'Não foi possível abrir arquivo .csv')
 
 
+
+    """
     def load_csv(self, filename: str, separator: str):
         try:
             data = pd.read_csv(filename, sep=separator)
         except:
             data = None
         return data
-
+    """
 
     def start_enconding(self):
         """ Calls encode_decode function with Encode flag """

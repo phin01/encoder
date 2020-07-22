@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>390</width>
-    <height>275</height>
+    <height>299</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -65,7 +65,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>20</x>
      <y>40</y>
      <width>391</width>
      <height>31</height>
@@ -78,14 +78,17 @@
   <widget class="QLabel" name="lblResult">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>10</x>
      <y>250</y>
-     <width>411</width>
-     <height>21</height>
+     <width>431</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="text">
     <string/>
+   </property>
+   <property name="wordWrap">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPlainTextEdit" name="txtSeparator">
@@ -125,17 +128,17 @@
    </property>
    <item>
     <property name="text">
-     <string>Anonimizar</string>
+     <string>Base64 (simples)</string>
     </property>
    </item>
    <item>
     <property name="text">
-     <string>Criptografar</string>
+     <string>Vigenere</string>
     </property>
    </item>
    <item>
     <property name="text">
-     <string>Ambos</string>
+     <string>Fenet</string>
     </property>
    </item>
   </widget>
