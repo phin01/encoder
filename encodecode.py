@@ -32,24 +32,24 @@ class EncoDeco():
     # ------------------------------------------------
     # Encode/Decode functions
     # ------------------------------------------------
-    def encode(self, df: pd.DataFrame, fernet=False, vigenere=False, p64=False) -> pd.DataFrame :
+    def encode(self, df: pd.DataFrame, method="base64") -> pd.DataFrame :
         df['concat'] = ['|'.join(row) for row in df[df.columns[0:]].astype(str).values]
-        if fernet:
+        if method == "fernet":
             df['fernet'] = [self._fernet_encode(row.encode('utf-8')) for row in df['concat'].values]
-        if vigenere:
+        if method == "vigenere":
             df['vigenere'] = [self._vigenere_encode(row) for row in df['concat'].values]
-        if p64:
+        if method == "base64":
             df['base64'] = [self._scramble64(row) for row in df['concat'].values]
         df = df.drop(columns=['concat'])
         return df
 
-    def decode(self, df: pd.DataFrame, separator, fernet=False, vigenere=False, p64=False) -> pd.DataFrame :
+    def decode(self, df: pd.DataFrame, method="base64") -> pd.DataFrame :
         print('oxe')
-        if fernet:
-            pass
-        if vigenere:
-            pass
-        if p64:
+        if method == "fernet":
+            df['converted'] = [str(self._fernet_decode(row)) for row in df[0].values]
+        if method == "vigenere":
+            df['converted'] = [str(self._vigenere_decode(row)) for row in df[0].values]
+        if method == "base64":
             df['converted'] = [str(self._unscramble64(row)) for row in df[0].values]
 
         df_split = df['converted'].str.split('|', expand=True)

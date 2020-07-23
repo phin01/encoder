@@ -20,7 +20,9 @@ class EncoderGUI(QtWidgets.QWidget):
         # set button functions to encode, decode and get source file
         self.btnCode.clicked.connect(self.start_enconding)
         self.btnDecode.clicked.connect(self.start_decoding)
+
         self.btnGetSourceFile.clicked.connect(self.get_csv_filename)
+        self.btnSetOutputFile.clicked.connect(self.set_output_filename)
 
         self.encodecode = EncoDeco()
 
@@ -41,7 +43,24 @@ class EncoderGUI(QtWidgets.QWidget):
         # options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"Buscar CSV", "","CSV Files (*.csv)", options=options)
         if fileName:
-            self.set_csv_path(fileName) if self.check_csv_extension(fileName) else self.show_msgbox('Erro', 'Favor selecionar um arquivo .csv')
+            if self.check_csv_extension(fileName):
+                self.set_csv_path(fileName, 'input') 
+                self.set_csv_path(fileName.replace('.csv', '_output.csv'), 'output')
+            else:
+                self.show_msgbox('Erro', 'Favor selecionar um arquivo .csv')
+
+
+    def set_output_filename(self):
+        """
+            Opens File Dialog to select .csv file for encode/decode output
+            If file is .csv, sets UI textbox to filename
+            Displays error message box in case selected file is not .csv
+        """
+        options = QFileDialog.Options()
+        # options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getSaveFileName(self,"Buscar CSV", "","CSV Files (*.csv)", options=options)
+        if fileName:
+            self.set_csv_path(fileName, 'output') if self.check_csv_extension(fileName) else self.show_msgbox('Erro', 'Favor selecionar um arquivo .csv')
 
 
     def encode_decode(self, encode: bool):
@@ -54,17 +73,18 @@ class EncoderGUI(QtWidgets.QWidget):
 
             if not data.empty:
                 if encode:
-                    encoded_df = self.encodecode.encode(data, p64=True)
+                    encoded_df = self.encodecode.encode(data, method="base64")
                     output_csv = fileName.replace('.csv', '_convertido.csv')
-                    output_result = self.encodecode.store_csv(encoded_df, output_csv, ';')
+                    output_result = self.encodecode.store_csv(encoded_df, output_csv, separator)
                 else:
-                    decoded_df = self.encodecode.decode(data, separator, p64=True)
+                    decoded_df = self.encodecode.decode(data, method="base64")
                     output_csv = fileName.replace('.csv', '_original.csv')
-                    output_result = self.encodecode.store_csv(decoded_df, output_csv, ';')
+                    output_result = self.encodecode.store_csv(decoded_df, output_csv, separator)
         
         if output_result:
             self.lblResult.setText('Arquivo salvo com sucesso em {0}'.format(output_csv))
-            self.set_csv_path('')
+            self.set_csv_path('', 'input')
+            self.set_csv_path('', 'output')
         else:
             self.lblResult.setText('Erro na operação')
             self.show_msgbox('Erro', 'Não foi possível abrir arquivo .csv')
@@ -90,10 +110,13 @@ class EncoderGUI(QtWidgets.QWidget):
         self.encode_decode(encode=False)
 
 
-    def set_csv_path(self, fileName: str):
+    def set_csv_path(self, fileName: str, fileType="input"):
         """ Sets Text Box in UI to filename string received as parameter """
         try:
-            self.txtPath.setPlainText(fileName)
+            if fileType == "input":
+                self.txtInput.setPlainText(fileName)
+            elif fileType == "output":
+                self.txtOutput.setPlainText(fileName)
         except:
             self.show_msgbox('Erro', 'Não foi possível selecionar o arquivo!')
 
