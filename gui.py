@@ -34,7 +34,7 @@ class EncoderGUI(QtWidgets.QWidget):
 
     def get_csv_filename(self):
         """
-            Opens File Dialog to select .csv file that will be encoded or decoded
+            Opens File Dialog to select source .csv file that will be encoded/decoded
             If file is .csv, sets UI textbox to filename
             Displays error message box in case selected file is not .csv
         """
@@ -52,7 +52,7 @@ class EncoderGUI(QtWidgets.QWidget):
 
     def set_output_filename(self):
         """
-            Opens File Dialog to select .csv file for encode/decode output
+            Opens File Dialog to select .csv file destination for encode/decode output
             If file is .csv, sets UI textbox to filename
             Displays error message box in case selected file is not .csv
         """
@@ -65,20 +65,19 @@ class EncoderGUI(QtWidgets.QWidget):
 
     def encode_decode(self, encode: bool):
         self.lblResult.setText('Processando...')
-        fileName = self.txtPath.toPlainText()
+        input_csv = self.txtInput.toPlainText()
+        output_csv = self.txtOutput.toPlainText()
         separator = self.txtSeparator.toPlainText()
 
-        if self.check_csv_extension(fileName) and separator:
-            data = self.encodecode.load_csv(fileName, separator)
+        if self.check_csv_extension(input_csv) and self.check_csv_extension(output_csv) and separator:
+            data = self.encodecode.load_csv(input_csv, separator)
 
             if not data.empty:
                 if encode:
                     encoded_df = self.encodecode.encode(data, method="base64")
-                    output_csv = fileName.replace('.csv', '_convertido.csv')
                     output_result = self.encodecode.store_csv(encoded_df, output_csv, separator)
                 else:
                     decoded_df = self.encodecode.decode(data, method="base64")
-                    output_csv = fileName.replace('.csv', '_original.csv')
                     output_result = self.encodecode.store_csv(decoded_df, output_csv, separator)
         
         if output_result:
